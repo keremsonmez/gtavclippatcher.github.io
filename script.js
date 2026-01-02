@@ -1,3 +1,6 @@
+// Current language
+let currentLang = localStorage.getItem('language') || 'en';
+
 // State
 let selectedFiles = [];
 let patchedFiles = []; // Store patched files for ZIP export
@@ -16,6 +19,14 @@ const caseInsensitiveCheckbox = document.getElementById('caseInsensitive');
 // Event Listeners
 fileInput.addEventListener('change', handleFileSelect);
 startBtn.addEventListener('click', startPatching);
+
+// Language selector
+document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const lang = btn.dataset.lang;
+        setLanguage(lang);
+    });
+});
 
 // Drag and drop
 document.querySelector('.file-label').addEventListener('dragover', (e) => {
@@ -38,6 +49,43 @@ document.querySelector('.file-label').addEventListener('drop', (e) => {
 });
 
 // Functions
+function setLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('language', lang);
+
+    // Update active button
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+
+    // Update all translatable elements
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (translations[lang][key]) {
+            el.textContent = translations[lang][key];
+        }
+    });
+
+    // Update placeholder
+    const patternsTextarea = document.getElementById('patterns');
+    if (patternsTextarea && translations[lang].patternsPlaceholder) {
+        patternsTextarea.placeholder = translations[lang].patternsPlaceholder;
+    }
+
+    // Update file text if no files selected
+    if (selectedFiles.length === 0) {
+        fileText.textContent = translations[lang].fileText;
+    } else {
+        updateFileList();
+    }
+
+    // Re-log ready message
+    if (logElement.children.length === 1) {
+        logElement.innerHTML = '';
+        log(translations[currentLang].ready, 'success');
+    }
+}
+
 function handleFileSelect(event) {
     selectedFiles = Array.from(event.target.files);
     updateFileList();
@@ -45,12 +93,12 @@ function handleFileSelect(event) {
 
 function updateFileList() {
     if (selectedFiles.length === 0) {
-        fileText.textContent = 'Choose .clip files or drag & drop';
+        fileText.textContent = translations[currentLang].fileText;
         fileList.innerHTML = '';
         return;
     }
 
-    fileText.textContent = `${selectedFiles.length} file(s) selected`;
+    fileText.textContent = `${selectedFiles.length} ${translations[currentLang].filesSelected}`;
     fileList.innerHTML = selectedFiles.map(file =>
         `<div class="file-item">${file.name} (${formatFileSize(file.size)})</div>`
     ).join('');
@@ -76,9 +124,11 @@ function setProgress(percent) {
 }
 
 async function startPatching() {
+    const t = translations[currentLang];
+
     // Validation
     if (selectedFiles.length === 0) {
-        alert('Please select at least one .clip file.');
+        alert(t.noFilesError);
         return;
     }
 
@@ -88,7 +138,7 @@ async function startPatching() {
         .filter(p => p.length > 0);
 
     if (patterns.length === 0) {
-        alert('Please enter at least one pattern.');
+        alert(t.noPatternsError);
         return;
     }
 
@@ -99,15 +149,15 @@ async function startPatching() {
 
     // Disable button
     startBtn.disabled = true;
-    startBtn.textContent = '⏳ Processing...';
+    startBtn.textContent = t.processing;
     setProgress(0);
 
     // Clear log and patched files
     logElement.innerHTML = '';
     patchedFiles = [];
-    log(`Found ${selectedFiles.length} clip file(s)`, 'info');
-    log(`Patterns: ${patterns.join(', ')}`, 'info');
-    log(`Mode: ${mode}`, 'info');
+    log(`${t.found} ${selectedFiles.length} ${t.clipFiles}`, 'info');
+    log(`${t.patterns} ${patterns.join(', ')}`, 'info');
+    log(`${t.mode} ${mode}`, 'info');
     log('─'.repeat(40), 'info');
 
     let totalFilesPatched = 0;
@@ -125,12 +175,12 @@ async function startPatching() {
             if (result.patchCount > 0) {
                 totalFilesPatched++;
                 totalPatternsPatched += result.patchCount;
-                log(`✓ ${file.name}: ${result.patchCount} pattern(s) patched`, 'success');
+                log(`✓ ${file.name}: ${result.patchCount} ${t.patternsPatched}`, 'success');
                 result.matches.forEach(match => {
-                    log(`  → '${match.text}' at offset ${match.offset}`, 'info');
+                    log(`  → '${match.text}' ${t.at} ${t.offset} ${match.offset}`, 'info');
                 });
             } else {
-                log(`○ ${file.name}: no matches`, 'info');
+                log(`○ ${file.name}: ${t.noMatches}`, 'info');
             }
         } catch (error) {
             log(`❌ ${file.name}: ${error.message}`, 'error');
@@ -139,8 +189,8 @@ async function startPatching() {
 
     // Summary
     log('─'.repeat(40), 'info');
-    log(`✅ Done! Files patched: ${totalFilesPatched}/${selectedFiles.length}`, 'success');
-    log(`   Total patterns patched: ${totalPatternsPatched}`, 'success');
+    log(`${t.done} ${totalFilesPatched}/${selectedFiles.length}`, 'success');
+    log(`${t.totalPatterns} ${totalPatternsPatched}`, 'success');
 
     // Download files
     if (patchedFiles.length > 0) {
@@ -367,5 +417,5 @@ function loadJSZip() {
     });
 }
 
-// Initial log message
-log('✓ Ready to patch clips!', 'success');
+// Initialize language
+setLanguage(currentLang);

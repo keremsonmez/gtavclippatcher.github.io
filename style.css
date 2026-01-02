@@ -35,8 +35,15 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Header */
@@ -47,6 +54,43 @@ body {
     background: linear-gradient(135deg, rgba(76, 110, 245, 0.1) 0%, rgba(92, 124, 250, 0.05) 100%);
     border-radius: 16px;
     border: 1px solid rgba(76, 110, 245, 0.2);
+    position: relative;
+}
+
+/* Language Selector */
+.language-selector {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.lang-btn {
+    background: rgba(76, 110, 245, 0.1);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.5rem;
+}
+
+.lang-btn:hover {
+    background: rgba(76, 110, 245, 0.2);
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+}
+
+.lang-btn.active {
+    background: var(--accent-primary);
+    border-color: var(--accent-hover);
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.flag {
+    display: block;
+    line-height: 1;
 }
 
 .title {
@@ -147,8 +191,15 @@ body {
 }
 
 @keyframes slideIn {
-    from { opacity: 0; transform: translateX(-20px); }
-    to { opacity: 1; transform: translateX(0); }
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 .file-item::before {
@@ -335,14 +386,32 @@ body {
 }
 
 @keyframes logEntry {
-    from { opacity: 0; transform: translateX(-10px); }
-    to { opacity: 1; transform: translateX(0); }
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
-.log-entry.success { color: var(--success); }
-.log-entry.warning { color: var(--warning); }
-.log-entry.error { color: var(--error); }
-.log-entry.info { color: var(--text-secondary); }
+.log-entry.success {
+    color: var(--success);
+}
+
+.log-entry.warning {
+    color: var(--warning);
+}
+
+.log-entry.error {
+    color: var(--error);
+}
+
+.log-entry.info {
+    color: var(--text-secondary);
+}
 
 /* Scrollbar */
 ::-webkit-scrollbar {
@@ -369,15 +438,15 @@ body {
     .title {
         font-size: 2rem;
     }
-    
+
     .container {
         padding: 10px;
     }
-    
+
     .card {
         padding: 18px;
     }
-    
+
     .radio-group {
         flex-direction: column;
         align-items: flex-start;

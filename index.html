@@ -6,24 +6,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎬 Rockstar Editor Clip Patcher</title>
     <link rel="stylesheet" href="style.css">
+    <script src="locales/tr.js"></script>
+    <script src="locales/en.js"></script>
+    <script src="locales.js"></script>
 </head>
 
 <body>
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <h1 class="title">🎬 Rockstar Editor Clip Patcher</h1>
-            <p class="subtitle">Pattern Patcher for GTA V Clips created by WaydeTheKiwi, developed by Quadria</p>
-            <p class="subtitle">You can access your clips from the following location:</p>
-            <p class="subtitle">YOURPC\AppData\Local\Rockstar Games\GTA V\videos\clip</p>
+            <div class="language-selector">
+                <button class="lang-btn" data-lang="tr" title="Türkçe">
+                    <span class="flag">🇹🇷</span>
+                </button>
+                <button class="lang-btn" data-lang="en" title="English">
+                    <span class="flag">🇬🇧</span>
+                </button>
+            </div>
+            <h1 class="title" data-i18n="title">🎬 FiveM Clip Patcher</h1>
+            <p class="subtitle" data-i18n="subtitle">Binary ASCII Pattern Patcher for GTA V Clips</p>
+            <p class="subtitle" data-i18n="clipLocation">You can access your clips from the following location:</p>
+            <p class="subtitle" data-i18n="clipPath">YOURPC\AppData\Local\Rockstar Games\GTA V\videos\clip</p>
         </header>
         <!-- File Upload Section -->
         <section class="card">
-            <label class="label">📁 Select Clip Files</label>
+            <label class="label" data-i18n="fileLabel">📁 Select Clip Files</label>
             <div class="file-input-wrapper">
                 <input type="file" id="fileInput" multiple accept=".clip" class="file-input">
                 <label for="fileInput" class="file-label">
-                    <span id="fileText">Choose .clip files or drag & drop</span>
+                    <span id="fileText" data-i18n="fileText">Choose .clip files or drag & drop</span>
                 </label>
             </div>
             <div id="fileList" class="file-list"></div>
@@ -31,28 +42,25 @@
 
         <!-- Patterns Section -->
         <section class="card">
-            <label class="label" for="patterns">📝 Patterns (one per line)</label>
-            <div class="helper-text">Please list the names of the crashed resources here one after another</div>
-            <textarea id="patterns" class="textarea" placeholder="Example FiveM Asset:
-dpemotes
-qua_delperroproject_venny
-PlayerName"></textarea>
+            <label class="label" for="patterns" data-i18n="patternsLabel">📝 Patterns (one per line)</label>
+            <div class="helper-text" data-i18n="patternsHelper">Supports wildcards: * (any chars), ? (single char)</div>
+            <textarea id="patterns" class="textarea" data-i18n-placeholder="patternsPlaceholder"></textarea>
         </section>
 
         <!-- Options Section -->
         <section class="card">
-            <label class="label">⚙️ Options</label>
+            <label class="label" data-i18n="optionsLabel">⚙️ Options</label>
 
             <div class="option-group">
                 <div class="radio-group">
-                    <span class="option-label">Mode:</span>
+                    <span class="option-label" data-i18n="modeLabel">Mode:</span>
                     <label class="radio-label">
                         <input type="radio" name="mode" value="null" checked>
-                        <span>Null Bytes (Recommended)</span>
+                        <span data-i18n="modeNull">Null Bytes</span>
                     </label>
                     <label class="radio-label">
                         <input type="radio" name="mode" value="placeholder">
-                        <span>Placeholder</span>
+                        <span data-i18n="modePlaceholder">Placeholder</span>
                     </label>
                 </div>
             </div>
@@ -60,18 +68,18 @@ PlayerName"></textarea>
             <div class="option-group">
                 <label class="checkbox-label">
                     <input type="checkbox" id="caseInsensitive">
-                    <span>Case Insensitive</span>
+                    <span data-i18n="caseInsensitive">Case Insensitive</span>
                 </label>
 
                 <div class="input-group">
-                    <label for="placeholder" class="option-label">Placeholder:</label>
+                    <label for="placeholder" class="option-label" data-i18n="placeholderLabel">Placeholder:</label>
                     <input type="text" id="placeholder" value="REMOVED" class="input-text">
                 </div>
             </div>
         </section>
 
         <!-- Start Button -->
-        <button id="startBtn" class="btn-primary">
+        <button id="startBtn" class="btn-primary" data-i18n="startButton">
             🚀 Start Patching
         </button>
 
@@ -82,7 +90,7 @@ PlayerName"></textarea>
 
         <!-- Log Section -->
         <section class="card log-section">
-            <label class="label">📋 Log</label>
+            <label class="label" data-i18n="logLabel">📋 Log</label>
             <div id="log" class="log"></div>
         </section>
     </div>
@@ -91,8 +99,3 @@ PlayerName"></textarea>
 </body>
 
 </html>
-
-
-
-
-
