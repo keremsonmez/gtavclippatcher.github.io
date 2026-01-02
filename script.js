@@ -1,5 +1,6 @@
 // State
 let selectedFiles = [];
+let patchedFiles = []; // Store patched files for ZIP export
 
 // DOM Elements
 const fileInput = document.getElementById('fileInput');
@@ -101,8 +102,9 @@ async function startPatching() {
     startBtn.textContent = '⏳ Processing...';
     setProgress(0);
 
-    // Clear log
+    // Clear log and patched files
     logElement.innerHTML = '';
+    patchedFiles = [];
     log(`Found ${selectedFiles.length} clip file(s)`, 'info');
     log(`Patterns: ${patterns.join(', ')}`, 'info');
     log(`Mode: ${mode}`, 'info');
@@ -140,13 +142,33 @@ async function startPatching() {
     log(`✅ Done! Files patched: ${totalFilesPatched}/${selectedFiles.length}`, 'success');
     log(`   Total patterns patched: ${totalPatternsPatched}`, 'success');
 
+    // Download files
+    if (patchedFiles.length > 0) {
+        if (patchedFiles.length === 1) {
+            // Single file - download directly
+            log('Downloading patched file...', 'info');
+            const { blob, filename } = patchedFiles[0];
+            downloadFile(blob, filename);
+        } else {
+            // Multiple files - create ZIP
+            log('Creating ZIP archive...', 'info');
+            await createAndDownloadZip(patchedFiles);
+            log('✓ ZIP archive downloaded!', 'success');
+        }
+    }
+
     // Reset button
     startBtn.disabled = false;
     startBtn.textContent = '🚀 Start Patching';
     setProgress(100);
 
     // Show completion message
-    alert(`Patching complete!\n\nFiles patched: ${totalFilesPatched}/${selectedFiles.length}\nPatterns patched: ${totalPatternsPatched}\n\nModified files will be downloaded automatically.`);
+    const downloadMsg = patchedFiles.length > 1
+        ? '\n\nPatched files have been downloaded as a ZIP archive.'
+        : patchedFiles.length === 1
+            ? '\n\nPatched file has been downloaded.'
+            : '';
+    alert(`Patching complete!\n\nFiles patched: ${totalFilesPatched}/${selectedFiles.length}\nPatterns patched: ${totalPatternsPatched}${downloadMsg}`);
 }
 
 async function processFile(file, patterns, mode, placeholder, caseInsensitive) {
@@ -185,14 +207,12 @@ async function processFile(file, patterns, mode, placeholder, caseInsensitive) {
         modifiedData.set(replacement, match.offset);
     }
 
-    // Download modified file
+    // Store patched file for later download
     const blob = new Blob([modifiedData], { type: 'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `patched_${file.name}`;
-    a.click();
-    URL.revokeObjectURL(url);
+    patchedFiles.push({
+        blob: blob,
+        filename: `patched_${file.name}`
+    });
 
     return {
         patchCount: allMatches.length,
@@ -304,6 +324,47 @@ function findBytes(haystack, needle, startPos = 0) {
         if (found) return i;
     }
     return -1;
+}
+
+function downloadFile(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+async function createAndDownloadZip(files) {
+    // Load JSZip from CDN if not already loaded
+    if (typeof JSZip === 'undefined') {
+        await loadJSZip();
+    }
+
+    const zip = new JSZip();
+
+    // Add all files to the ZIP
+    for (const { blob, filename } of files) {
+        const arrayBuffer = await blob.arrayBuffer();
+        zip.file(filename, arrayBuffer);
+    }
+
+    // Generate ZIP file
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+
+    // Download ZIP
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    downloadFile(zipBlob, `patched_clips_${timestamp}.zip`);
+}
+
+function loadJSZip() {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
 }
 
 // Initial log message
